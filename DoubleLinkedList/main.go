@@ -96,10 +96,10 @@ func (dll *DoubleLinkedList) AddAfter(property int, value int) {
 
 func main() {
 	doubleLinkedList := DoubleLinkedList{}
-	//doubleLinkedList.AddToHead(5)
-	//doubleLinkedList.AddToHead(10)
-	//doubleLinkedList.AddToHead(60)
-	//doubleLinkedList.AddToHead(20)
+	doubleLinkedList.AddToHead(5)
+	doubleLinkedList.AddToHead(10)
+	doubleLinkedList.AddToHead(60)
+	doubleLinkedList.AddToHead(20)
 	doubleLinkedList.AddToEnd(55)
 	doubleLinkedList.AddToEnd(102)
 	doubleLinkedList.AddAfter(100, 55)
