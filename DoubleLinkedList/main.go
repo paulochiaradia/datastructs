@@ -82,8 +82,8 @@ func (dll *DoubleLinkedList) AddAfter(property int, value int) {
 	}
 	nodeToBeAdd := &Node{
 		property:     property,
-		nextNode:     nil,
-		previousNode: nil,
+		nextNode:     node.nextNode,
+		previousNode: node,
 	}
 	if node.nextNode != nil {
 		node.nextNode.previousNode = nodeToBeAdd
@@ -91,21 +91,32 @@ func (dll *DoubleLinkedList) AddAfter(property int, value int) {
 		dll.endNode = nodeToBeAdd // Atualiza endNode se node é o último nó
 	}
 	node.nextNode = nodeToBeAdd
+}
 
+func (dll *DoubleLinkedList) NodeBetweenValues(propertyPrevious int, propertyNext int) *Node {
+	node := &Node{}
+	nodeWith := &Node{}
+	for node = dll.headNode; node != nil; node = node.nextNode {
+		if node.previousNode != nil && node.nextNode != nil {
+			if node.previousNode.property == propertyPrevious && node.nextNode.property == propertyNext {
+				nodeWith = node
+			}
+		}
+	}
+	return nodeWith
 }
 
 func main() {
 	doubleLinkedList := DoubleLinkedList{}
-	//doubleLinkedList.AddToHead(5)
-	//doubleLinkedList.AddToHead(10)
-	//doubleLinkedList.AddToHead(60)
-	//doubleLinkedList.AddToHead(20)
+	doubleLinkedList.AddToHead(5)
+	doubleLinkedList.AddToHead(10)
+	doubleLinkedList.AddToHead(60)
+	doubleLinkedList.AddToHead(20)
 	doubleLinkedList.AddToEnd(55)
 	doubleLinkedList.AddToEnd(102)
+	doubleLinkedList.PrintHeadToEnd()
+	fmt.Println("Add 100 after 55")
 	doubleLinkedList.AddAfter(100, 55)
 	doubleLinkedList.PrintHeadToEnd()
 	fmt.Println("---------")
-	doubleLinkedList.PrintEndToHead()
-	//node, _ := doubleLinkedList.SearchNodeWithValue(102)
-	//fmt.Println(node)
 }
