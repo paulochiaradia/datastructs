@@ -29,8 +29,13 @@ func (ll *LinkedList) PrintList() {
 }
 
 func (ll *LinkedList) LastNode() *Node {
-	node := &Node{}
-	for node = ll.headNode; node.nextNode != nil; node = node.nextNode {
+	if ll.headNode == nil {
+		return nil
+	}
+
+	node := ll.headNode
+	for node.nextNode != nil {
+		node = node.nextNode
 	}
 	return node
 }
@@ -41,17 +46,22 @@ func (ll *LinkedList) AddToEnd(property int) {
 		nextNode: nil,
 	}
 	lastNode := ll.LastNode()
-	lastNode.nextNode = node
+	if lastNode == nil {
+		ll.headNode = node
+	} else {
+		lastNode.nextNode = node
+	}
 }
 
 func (ll *LinkedList) NodeWithValue(value int) (*Node, error) {
-	node := &Node{}
-	for node = ll.headNode; node != nil; node = node.nextNode {
+	node := ll.headNode
+	for node != nil {
 		if node.property == value {
 			return node, nil
 		}
+		node = node.nextNode
 	}
-	return nil, errors.New("node doesnt exist")
+	return nil, errors.New("node doesn't exist")
 }
 
 func (ll *LinkedList) AddAfter(property int, find int) {
@@ -66,20 +76,31 @@ func (ll *LinkedList) AddAfter(property int, find int) {
 	}
 	nodeInsert.nextNode = node.nextNode
 	node.nextNode = nodeInsert
-
 }
 
 func (ll *LinkedList) DeleteHead() {
-	ll.headNode = ll.headNode.nextNode
+	if ll.headNode != nil {
+		ll.headNode = ll.headNode.nextNode
+	}
 }
 
 func (ll *LinkedList) DeleteEnd() {
-	node := &Node{}
-	previus := &Node{}
-	for node = ll.headNode; node.nextNode != nil; node = node.nextNode {
-		previus = node
+	if ll.headNode == nil {
+		return
 	}
-	previus.nextNode = nil
+
+	if ll.headNode.nextNode == nil {
+		ll.headNode = nil
+		return
+	}
+
+	node := ll.headNode
+	var previous *Node
+	for node.nextNode != nil {
+		previous = node
+		node = node.nextNode
+	}
+	previous.nextNode = nil
 }
 
 func (ll *LinkedList) DeleteSearch(property int) {
@@ -112,25 +133,46 @@ func (ll *LinkedList) DeleteSearch(property int) {
 }
 
 func (ll *LinkedList) LenghtList() int {
-	var lenght int
-	var node *Node
-
-	for node = ll.headNode; node != nil; node = node.nextNode {
-		lenght++
+	var length int
+	for node := ll.headNode; node != nil; node = node.nextNode {
+		length++
 	}
-	return lenght
+	return length
 }
+
+func (ll *LinkedList) HasCycle() bool {
+	slow := ll.headNode
+	fast := ll.headNode
+
+	for slow != nil && fast != nil && fast.nextNode != nil {
+		slow = slow.nextNode
+		fast = fast.nextNode.nextNode
+
+		if slow == fast {
+			return true
+		}
+	}
+
+	return false
+}
+
 func main() {
 	listaLigada := LinkedList{}
-	listaLigada.AddToHead(4)
-	listaLigada.AddToHead(7)
-	listaLigada.AddToHead(10)
-	listaLigada.AddToHead(9)
+	listaLigada.AddToEnd(1)
+	listaLigada.AddToEnd(2)
+	listaLigada.AddToEnd(3)
+	listaLigada.AddToEnd(4)
 	listaLigada.PrintList()
-	listaLigada.DeleteSearch(8)
-	fmt.Println("------")
-	listaLigada.PrintList()
-	fmt.Println("------")
-	fmt.Println(listaLigada.LenghtList())
+	//listaLigada.DeleteSearch(8)
+	//fmt.Println("------")
+	//listaLigada.PrintList()
+	//fmt.Println("------")
+	//fmt.Println(listaLigada.LenghtList())
+	listaLigada.headNode.nextNode.nextNode.nextNode = listaLigada.headNode
 
+	if listaLigada.HasCycle() {
+		fmt.Println("List contains a cycle")
+	} else {
+		fmt.Println("List does not contain a cycle")
+	}
 }
