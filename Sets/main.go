@@ -6,115 +6,123 @@ import (
 )
 
 type Set struct {
-	intergerMap map[int]bool
+	integerMap map[int]bool
 }
 
-func (set *Set) New() {
-	set.intergerMap = make(map[int]bool)
+func (s *Set) New() {
+	s.integerMap = make(map[int]bool)
 }
-func (set *Set) ContainsElement(element int) bool {
-	_, exist := set.intergerMap[element]
+
+// Contains
+func (s *Set) ContainsElement(element int) bool {
+	_, exist := s.integerMap[element]
 	return exist
 }
 
-func (set *Set) AddElement(element int, b bool) {
-	if !set.ContainsElement(element) {
-		set.intergerMap[element] = b
-	} else {
-		fmt.Println("This data already exists")
+func (s *Set) ContainsElementInTwoSets(set *Set, element int) bool {
+	existOne := s.ContainsElement(element)
+	existTwo := set.ContainsElement(element)
+	return existOne && existTwo
+
+}
+
+func (s *Set) Add(number int, condition bool) {
+	if !s.ContainsElement(number) {
+		s.integerMap[number] = condition
 	}
 }
 
-func (set *Set) Delete(element int) {
-	delete(set.intergerMap, element)
+func (s *Set) Delete(number int) {
+	delete(s.integerMap, number)
 }
 
-func (set *Set) BothContain(element int, anotherSet *Set) bool {
-	countainInSet := set.ContainsElement(element)
-	countainInAnotherSet := anotherSet.ContainsElement(element)
-	return countainInSet && countainInAnotherSet
+func (s *Set) Union(set *Set) (*Set, error) {
+	union := &Set{}
+	union.New()
+
+	for element := range s.integerMap {
+		condition := s.integerMap[element]
+		union.Add(element, condition)
+	}
+
+	for element := range set.integerMap {
+		condition := set.integerMap[element]
+		union.Add(element, condition)
+	}
+	if len(union.integerMap) == 0 {
+		return nil, errors.New("union is empty")
+	}
+	return union, nil
 }
 
-func (set *Set) Intersect(anotherSet *Set) (*Set, error) {
-	intersectSet := &Set{}
-	intersectSet.New()
-	for data := range set.intergerMap {
-		if set.BothContain(data, anotherSet) {
-			condition := set.intergerMap[data]
-			intersectSet.AddElement(data, condition)
+func (s *Set) Intersect(set *Set) (*Set, error) {
+	interserct := &Set{}
+	interserct.New()
+
+	for element := range s.integerMap {
+		if s.ContainsElementInTwoSets(set, element) && s.integerMap[element] == set.integerMap[element] {
+			condition := s.integerMap[element]
+			interserct.Add(element, condition)
 		}
 	}
-	if len(intersectSet.intergerMap) == 0 {
-		return nil, errors.New("intersection is nil")
-	} else {
-		return intersectSet, nil
+
+	if len(interserct.integerMap) == 0 {
+		return nil, errors.New("intersect is empty")
 	}
+	return interserct, nil
 
 }
 
-func (set *Set) Union(anotherSet *Set) (*Set, error) {
-	unionSet := &Set{}
-	unionSet.New()
-	// for data := range set.intergerMap {
-	// 	if set.BothContain(data, anotherSet) {
-	// 		continue
-	// 	}
-	// 	condition := set.intergerMap[data]
-	// 	unionSet.AddElement(data, condition)
-	// }
-
-	// for data := range anotherSet.intergerMap {
-	// 	if set.BothContain(data, set) {
-	// 		continue
-	// 	}
-	// 	condition := anotherSet.intergerMap[data]
-	// 	unionSet.AddElement(data, condition)
-	// }
-	var value int
-	for value = range set.intergerMap {
-		condition := set.intergerMap[value]
-		unionSet.AddElement(value, condition)
+func (s *Set) Difference(set *Set) (*Set, error) {
+	difference := &Set{}
+	difference.New()
+	for element := range s.integerMap {
+		if !(s.ContainsElementInTwoSets(set, element)) || s.integerMap[element] != set.integerMap[element] {
+			conditon := s.integerMap[element]
+			difference.Add(element, conditon)
+		}
 	}
-
-	for value = range anotherSet.intergerMap {
-		condition := anotherSet.intergerMap[value]
-		unionSet.AddElement(value, condition)
+	if len(difference.integerMap) == 0 {
+		return nil, errors.New("difference is empty")
 	}
-	if len(unionSet.intergerMap) == 0 {
-		return nil, errors.New("intersection is nil")
-	} else {
-		return unionSet, nil
-	}
-
+	return difference, nil
 }
 
 func main() {
-	set := &Set{}
-	anotherSet := &Set{}
+	s := Set{}
+	s.New()
+	s2 := Set{}
+	s2.New()
+	s.Add(30000, false)
+	s.Add(70, false)
+	s.Add(3, true)
+	s.Add(80, false)
 
-	set.New()
-	anotherSet.New()
+	s2.Add(6, false)
+	s2.Add(70, true)
+	s2.Add(3, true)
+	s2.Add(86, false)
 
-	set.AddElement(1, true)
-	set.AddElement(2, false)
-	set.AddElement(3, false)
-
-	anotherSet.AddElement(10, true)
-	anotherSet.AddElement(2, false)
-	anotherSet.AddElement(3, false)
-
-	intersection, err := set.Intersect(anotherSet)
+	fmt.Println(s)
+	union, err := s.Union(&s2)
 	if err != nil {
-		fmt.Println(err)
-	} else {
-		fmt.Println(intersection)
+		panic(err)
 	}
+	fmt.Println(union)
 
-	union, err := set.Union(anotherSet)
+	fmt.Println("---------")
+
+	intersect, err := s.Intersect(&s2)
 	if err != nil {
-		fmt.Println(err)
-	} else {
-		fmt.Println(union)
+		panic(err)
 	}
+	fmt.Println(intersect)
 
+	fmt.Println("---------")
+
+	difference, err := s2.Difference(&s)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println(difference)
 }
